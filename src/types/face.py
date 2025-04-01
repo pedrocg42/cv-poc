@@ -1,12 +1,15 @@
+from src.types.base import Annotation, BoundingBox, Point
+
 import numpy as np
-from pydantic import BaseModel
-from types.base import Annotation, BoundingBox, Point
+from pydantic import BaseModel, ConfigDict
 
 
 class Identity(BaseModel):
     name: str
     embeddings: list[np.ndarray] | None = None
     metadata: dict | None = None
+
+    model_config = ConfigDict(arbitrary_types_allowed=True)
 
 
 class FaceLandmarks(BaseModel):
@@ -35,8 +38,8 @@ class FaceLandmarks(BaseModel):
 
 
 class Face(Annotation):
-    bb: BoundingBox
-    landmarks: FaceLandmarks
+    bb: BoundingBox | None = None
+    landmarks: FaceLandmarks | None = None
     identity: Identity | None = None
 
     def scale(self, factor: float) -> "Face":
@@ -47,11 +50,13 @@ class Face(Annotation):
         )
 
     def draw(self, image: np.ndarray) -> np.ndarray:
-        # Draw bounding box
-        image = self.bb.draw(image)
+        if self.bb is not None:
+            # Draw bounding box
+            image = self.bb.draw(image)
 
-        # Draw landmarks
-        image = self.landmarks.draw(image)
+        if self.landmarks is not None:
+            # Draw landmarks
+            image = self.landmarks.draw(image)
 
         return image
 

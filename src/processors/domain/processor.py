@@ -1,6 +1,5 @@
 from abc import ABC, abstractmethod
-
-from types.selfie_data import SelfieData
+from src.types.selfie_data import SelfieData
 
 
 class Processor(ABC):

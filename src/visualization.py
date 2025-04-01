@@ -1,7 +1,7 @@
 import cv2
 import numpy as np
-from typing import Tuple
-from .model_manager import DetectionResult, RecognitionResult, AttributeResult
+
+from .model_manager import AttributeResult, DetectionResult, RecognitionResult
 
 
 class Visualizer:
@@ -34,7 +34,7 @@ class Visualizer:
 
         return image
 
-    def draw_attributes(self, image: np.ndarray, attributes: AttributeResult, position: Tuple[int, int]) -> np.ndarray:
+    def draw_attributes(self, image: np.ndarray, attributes: AttributeResult, position: tuple[int, int]) -> np.ndarray:
         """Draw face attributes at the specified position."""
         y_offset = position[1]
 
@@ -92,7 +92,7 @@ class Visualizer:
         return image
 
     def draw_recognition(
-        self, image: np.ndarray, recognition: RecognitionResult, position: Tuple[int, int]
+        self, image: np.ndarray, recognition: RecognitionResult, position: tuple[int, int]
     ) -> np.ndarray:
         """Draw face recognition results at the specified position."""
         if recognition.identity is not None:
@@ -132,7 +132,9 @@ class Visualizer:
         result_image = image.copy()
 
         # Draw detections and their corresponding attributes/recognition
-        for i, (detection, recognition, attribute) in enumerate(zip(detections, recognitions, attributes)):
+        for _i, (detection, recognition, attribute) in enumerate(
+            zip(detections, recognitions, attributes, strict=False)
+        ):
             # Draw detection box and landmarks
             result_image = self.draw_detection(result_image, detection)
 

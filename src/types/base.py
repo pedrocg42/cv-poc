@@ -1,7 +1,8 @@
 from abc import ABC, abstractmethod
-from pydantic import BaseModel, Field
-import numpy as np
+
 import cv2
+import numpy as np
+from pydantic import BaseModel, Field
 
 
 class Annotation(BaseModel, ABC):
@@ -44,6 +45,13 @@ class BoundingBox(Annotation):
 
     def scale(self, factor: float) -> "BoundingBox":
         return BoundingBox(top_left=self.top_left.scale(factor), bottom_right=self.bottom_right.scale(factor))
+
+    def crop(self, bb: "BoundingBox") -> "BoundingBox":
+        self.top_left.x -= bb.top_left.x
+        self.top_left.y -= bb.top_left.y
+        self.bottom_right.x -= bb.top_left.x
+        self.bottom_right.y -= bb.top_left.y
+        return self
 
     def draw(self, image: np.ndarray) -> np.ndarray:
         cv2.rectangle(

@@ -1,10 +1,10 @@
-import asyncio
-import cv2
-import numpy as np
-from model_manager import ModelManager, InferenceBackend
-from visualization import Visualizer
 import argparse
-from pathlib import Path
+import asyncio
+
+import cv2
+from model_manager import InferenceBackend, ModelManager
+
+from visualization import Visualizer
 
 
 async def process_image(image_path: str, output_path: str, model_manager: ModelManager):

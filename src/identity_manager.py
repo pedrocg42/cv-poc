@@ -1,24 +1,22 @@
-import numpy as np
-from typing import Dict, List, Optional, Tuple
-from dataclasses import dataclass
 import json
 import os
 from pathlib import Path
+from src.types.face import Identity
 
-from pydantic import BaseModel
+import numpy as np
 
 
 class IdentityManager:
     def __init__(self, storage_path: str = "identities.json"):
         self.storage_path = storage_path
-        self.identities: Dict[str, Identity] = {}
+        self.identities: dict[str, Identity] = {}
         self.threshold = 0.6  # Similarity threshold for face matching
         self.load_identities()
 
     def load_identities(self):
         """Load identities from storage file."""
         if os.path.exists(self.storage_path):
-            with open(self.storage_path, "r") as f:
+            with open(self.storage_path) as f:
                 data = json.load(f)
                 for name, identity_data in data.items():
                     embeddings = [np.array(emb) for emb in identity_data["embeddings"]]
@@ -34,7 +32,7 @@ class IdentityManager:
         with open(self.storage_path, "w") as f:
             json.dump(data, f)
 
-    def add_identity(self, name: str, embedding: np.ndarray, metadata: Optional[Dict] = None):
+    def add_identity(self, name: str, embedding: np.ndarray, metadata: dict | None = None):
         """Add a new identity or update an existing one with a new embedding."""
         if name in self.identities:
             self.identities[name].embeddings.append(embedding)
@@ -50,7 +48,7 @@ class IdentityManager:
             del self.identities[name]
             self.save_identities()
 
-    def get_identity(self, name: str) -> Optional[Identity]:
+    def get_identity(self, name: str) -> Identity | None:
         """Get an identity by name."""
         return self.identities.get(name)
 
@@ -58,7 +56,7 @@ class IdentityManager:
         """Compute cosine similarity between two embeddings."""
         return float(np.dot(embedding1, embedding2) / (np.linalg.norm(embedding1) * np.linalg.norm(embedding2)))
 
-    def find_best_match(self, embedding: np.ndarray) -> Tuple[Optional[str], float]:
+    def find_best_match(self, embedding: np.ndarray) -> tuple[str | None, float]:
         """Find the best matching identity for a given embedding."""
         best_name = None
         best_similarity = -1
@@ -93,7 +91,7 @@ class IdentityManager:
         self.add_identity(name, embedding)
         return True
 
-    def add_identities_from_directory(self, directory: str, model_manager) -> Dict[str, bool]:
+    def add_identities_from_directory(self, directory: str, model_manager) -> dict[str, bool]:
         """Add identities from a directory of images."""
         results = {}
         for image_path in Path(directory).glob("*.jpg"):
