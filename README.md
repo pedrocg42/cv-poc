@@ -22,33 +22,29 @@ cd face-analysis-poc
 
 2. Create a virtual environment (recommended):
 ```bash
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
+curl -LsSf https://astral.sh/uv/install.sh | sh
+uv venv venv
+source .venv/bin/activate  # On Windows: venv\Scripts\activate
 ```
 
 3. Install dependencies:
 ```bash
-pip install -r requirements.txt
+uv pip install -r requirements.txt
+```
+
+## Dev
+
+```bash
+uv pip install -r dev-requirements.txt
+pre-commit install
 ```
 
 ## Usage
 
-### Image Processing
+### Face Attributes
 
-```python
-from src.main import process_image
-
-# Process a single image
-await process_image('path/to/input/image.jpg', 'output_image.jpg')
-```
-
-### Video Processing
-
-```python
-from src.main import process_video
-
-# Process a video file
-await process_video('path/to/input/video.mp4', 'output_video.mp4')
+```bash
+python face_attributes_cam.py
 ```
 
 ### Using the Model Manager Directly

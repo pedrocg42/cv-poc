@@ -1,11 +1,11 @@
 from abc import abstractmethod
 from pathlib import Path
-from src.types.selfie_data import SelfieData
 from typing import Any
 
 import onnxruntime as ort
 
 from src.processors.domain.processor import Processor
+from src.types.selfie_data import SelfieData
 
 
 class OnnxProcessor(Processor):

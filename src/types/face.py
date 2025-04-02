@@ -1,7 +1,7 @@
-from src.types.base import Annotation, BoundingBox, Point
-
 import numpy as np
 from pydantic import BaseModel, ConfigDict
+
+from src.types.base import Annotation, BoundingBox, Point
 
 
 class Identity(BaseModel):

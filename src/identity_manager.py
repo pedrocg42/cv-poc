@@ -1,9 +1,10 @@
 import json
 import os
 from pathlib import Path
-from src.types.face import Identity
 
 import numpy as np
+
+from src.types.face import Identity
 
 
 class IdentityManager:

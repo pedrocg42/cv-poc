@@ -1,7 +1,7 @@
-from src.types.face import Face
-
 import numpy as np
 from pydantic import BaseModel, ConfigDict
+
+from src.types.face import Face
 
 
 class SelfieData(BaseModel):

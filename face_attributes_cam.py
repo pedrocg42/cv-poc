@@ -1,15 +1,18 @@
 import asyncio
-from src.types.selfie_data import SelfieData
-import cv2
 import time
-from src.processors.infrastructure.face_detector_onnx_processor import FaceDetectorOnnxProcessor
+
+import cv2
+
+from src.processors.infrastructure.retinaface.retina_face_onnx_processor import RetinaFaceOnnxProcessor
+from src.types.selfie_data import SelfieData
 
 
 async def main():
-    face_detector_processor = FaceDetectorOnnxProcessor(".models/version-RFB-320-int8.onnx")
+    face_detector_processor = RetinaFaceOnnxProcessor()
+    # face_recognition_processor = FaceRecognitionProcessor()
 
     # Open video
-    cap = cv2.VideoCapture(0)
+    cap = cv2.VideoCapture(1)
     if not cap.isOpened():
         raise ValueError("Could not open camera")
 
@@ -34,6 +37,7 @@ async def main():
 
             # Run inference
             selfie_data = await face_detector_processor(selfie_data)
+            # selfie_data = await face_recognition_processor(selfie_data)
 
             # Show
             draw_frame = selfie_data.draw()
