@@ -22,7 +22,7 @@ class RetinaFaceOnnxProcessor(OnnxProcessor):
         confidence_threshold: float = 0.7,
         nms_threshold: float = 0.5,
         top_k: int = 100,
-        providers: list[str] | None = None,
+        **kwargs,
     ) -> None:
         """Initialize the face detector processor.
 
@@ -33,7 +33,7 @@ class RetinaFaceOnnxProcessor(OnnxProcessor):
             top_k: Keep top k results. If k <= 0, keep all results
             providers: List of execution providers to use
         """
-        super().__init__(model_path, providers)
+        super().__init__(model_path, **kwargs)
         self.confidence_threshold = confidence_threshold
         self.nms_threshold = nms_threshold
         self.top_k = top_k

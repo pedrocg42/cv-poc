@@ -75,6 +75,9 @@ class OnnxProcessor(Processor):
         # Preprocess input
         processed_input = self.preprocess(selfie_data)
 
+        if processed_input is None:
+            return selfie_data
+
         # Run inference
         output = self.session.run(self.output_names, {self.input_name: processed_input})
 

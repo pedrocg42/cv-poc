@@ -1,3 +1,4 @@
+import cv2
 import numpy as np
 from pydantic import BaseModel, ConfigDict
 
@@ -5,8 +6,10 @@ from src.types.base import Annotation, BoundingBox, Point
 
 
 class Identity(BaseModel):
-    name: str
-    embeddings: list[np.ndarray] | None = None
+    embedding: np.ndarray | None = None
+    id: int | None = None
+    name: str | None = None
+    last_name: str | None = None
     metadata: dict | None = None
 
     model_config = ConfigDict(arbitrary_types_allowed=True)
@@ -18,6 +21,18 @@ class FaceLandmarks(BaseModel):
     nose: Point
     left_mouth: Point
     right_mouth: Point
+
+    def numpy(self) -> np.ndarray:
+        return np.asarray(
+            [
+                [self.left_eye.x, self.left_eye.y],
+                [self.right_eye.x, self.right_eye.y],
+                [self.nose.x, self.nose.y],
+                [self.left_mouth.x, self.left_mouth.y],
+                [self.right_mouth.x, self.right_mouth.y],
+            ],
+            dtype=np.float32,
+        )
 
     def scale(self, factor: float) -> "FaceLandmarks":
         return FaceLandmarks(
@@ -41,6 +56,18 @@ class Face(Annotation):
     bb: BoundingBox | None = None
     landmarks: FaceLandmarks | None = None
     identity: Identity | None = None
+    reference_points: np.ndarray = np.array(
+        [
+            [0.2704875, 0.4615741],
+            [0.58510536, 0.45983392],
+            [0.42879644, 0.6405054],
+            [0.29954734, 0.82469195],
+            [0.5600884, 0.8232509],
+        ],
+        dtype=np.float64,
+    )
+
+    model_config = ConfigDict(arbitrary_types_allowed=True)
 
     def scale(self, factor: float) -> "Face":
         return Face(
@@ -58,7 +85,26 @@ class Face(Annotation):
             # Draw landmarks
             image = self.landmarks.draw(image)
 
+        if self.identity and self.identity.name:
+            # Draw name on top of bounding box
+            text_position = (int(self.bb.top_left.x), int(self.bb.top_left.y - 10))  # Position above the box
+            cv2.putText(
+                image,
+                f"{self.identity.name} {self.identity.last_name}",
+                text_position,
+                cv2.FONT_HERSHEY_SIMPLEX,
+                0.5,
+                (0, 255, 0),
+                1,
+            )
+
         return image
 
     def crop(self, image: np.ndarray) -> np.ndarray:
         return self.bb.crop_image(image)
+
+    def align_face(self, image: np.ndarray, image_size: int = 112) -> np.ndarray:
+        reference_points = self.reference_points * image_size
+        tform_cv2, _ = cv2.estimateAffinePartial2D(self.landmarks.numpy(), reference_points)
+        aligned = cv2.warpAffine(image, tform_cv2, (112, 112), flags=cv2.INTER_CUBIC)
+        return aligned

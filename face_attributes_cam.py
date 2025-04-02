@@ -3,13 +3,17 @@ import time
 
 import cv2
 
+from src.identity_manager import IdentityManager
+from src.processors.infrastructure.face_recognition_processor import FaceRecognitionProcessor
 from src.processors.infrastructure.retinaface.retina_face_onnx_processor import RetinaFaceOnnxProcessor
 from src.types.selfie_data import SelfieData
 
 
 async def main():
     face_detector_processor = RetinaFaceOnnxProcessor()
-    # face_recognition_processor = FaceRecognitionProcessor()
+    face_recognition_processor = FaceRecognitionProcessor()
+
+    identity_manager = IdentityManager()
 
     # Open video
     cap = cv2.VideoCapture(1)
@@ -37,7 +41,8 @@ async def main():
 
             # Run inference
             selfie_data = await face_detector_processor(selfie_data)
-            # selfie_data = await face_recognition_processor(selfie_data)
+            selfie_data = await face_recognition_processor(selfie_data)
+            selfie_data = identity_manager.identify(selfie_data)
 
             # Show
             draw_frame = selfie_data.draw()
