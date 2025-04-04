@@ -1,6 +1,6 @@
 import cv2
 import numpy as np
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 
 from src.types.base import Annotation, BoundingBox, Point
 
@@ -52,10 +52,37 @@ class FaceLandmarks(BaseModel):
         return image
 
 
+class FaceAttribute(BaseModel):
+    bb: BoundingBox
+    confidence: float
+    name: str
+
+    def draw(self, image: np.ndarray) -> np.ndarray:
+        if self.bb is not None:
+            # Draw bounding box
+            image = self.bb.draw(image)
+
+        if self and self.name:
+            # Draw name on top of bounding box
+            text_position = (int(self.bb.top_left.x), int(self.bb.top_left.y - 10))  # Position above the box
+            cv2.putText(
+                image,
+                f"{self.name}",
+                text_position,
+                cv2.FONT_HERSHEY_SIMPLEX,
+                0.5,
+                (0, 255, 0),
+                1,
+            )
+
+        return image
+
+
 class Face(Annotation):
     bb: BoundingBox | None = None
     landmarks: FaceLandmarks | None = None
     identity: Identity | None = None
+    attributes: list[FaceAttribute] = Field(default_factory=list)
     reference_points: np.ndarray = np.array(
         [
             [0.2704875, 0.4615741],
@@ -66,6 +93,7 @@ class Face(Annotation):
         ],
         dtype=np.float64,
     )
+    aligned_face: np.ndarray | None = None
 
     model_config = ConfigDict(arbitrary_types_allowed=True)
 

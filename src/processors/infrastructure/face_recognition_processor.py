@@ -38,20 +38,22 @@ class FaceRecognitionProcessor(OnnxProcessor):
         # Get the first face for now (can be extended to handle multiple faces)
         aligned_faces = []
         for face in selfie_data.faces:
-            image = selfie_data.image.copy()
+            if face.aligned_face is not None:
+                aligned_face = face.aligned_face
+            else:
+                image = selfie_data.image.copy()
 
-            # Extract face region
-            aligned_face = face.align_face(image, self.input_size)
+                # Extract face region
+                aligned_face = face.align_face(image, self.input_size)
+                face.aligned_face = aligned_face.copy()
 
             # Convert to NCHW format with batch dimension
             aligned_face = aligned_face.astype(np.float32)
             aligned_face -= self.image_mean
-            aligned_face *= self.image_std
+            aligned_face /= self.image_std
             aligned_face = np.transpose(aligned_face, [2, 0, 1])
             aligned_face = np.expand_dims(aligned_face, axis=0)
             aligned_faces.append(aligned_face)
-
-        aligned_faces = aligned_faces
 
         return aligned_faces
 

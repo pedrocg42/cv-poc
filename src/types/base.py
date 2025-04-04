@@ -65,6 +65,25 @@ class BoundingBox(Annotation):
             self.top_left.x : self.bottom_right.x,
         ]
 
+    def area(self) -> float:
+        return (self.bottom_right.x - self.top_left.x) * (self.bottom_right.y - self.top_left.y)
+
+    def iou(self, bb: "BoundingBox") -> float:
+        x_left = max(self.top_left.x, bb.top_left.x)
+        y_top = max(self.top_left.y, bb.top_left.y)
+        x_right = min(self.bottom_right.x, bb.bottom_right.x)
+        y_bottom = min(self.bottom_right.y, bb.bottom_right.y)
+
+        if x_right < x_left or y_bottom < y_top:
+            return 0.0
+
+        intersection_area = (x_right - x_left) * (y_bottom - y_top)
+
+        area1 = self.area()
+        area2 = bb.area()
+        union_area = area1 + area2 - intersection_area
+        return intersection_area / union_area
+
 
 class Polygon(Annotation):
     points: list[Point]
