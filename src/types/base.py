@@ -43,6 +43,14 @@ class BoundingBox(Annotation):
     top_left: Point
     bottom_right: Point
 
+    @property
+    def width(self) -> int:
+        return self.bottom_right.x - self.top_left.x
+
+    @property
+    def height(self) -> int:
+        return self.bottom_right.y - self.top_left.y
+
     def scale(self, factor: float) -> "BoundingBox":
         return BoundingBox(top_left=self.top_left.scale(factor), bottom_right=self.bottom_right.scale(factor))
 
@@ -60,10 +68,12 @@ class BoundingBox(Annotation):
         return image
 
     def crop_image(self, image: np.ndarray) -> np.ndarray:
-        return image[
-            self.top_left.y : self.bottom_right.y,
-            self.top_left.x : self.bottom_right.x,
-        ]
+        height, width = image.shape[:2]
+        y1 = min(max(self.top_left.y, 0), height)
+        y2 = min(max(self.bottom_right.y, 0), height)
+        x1 = min(max(self.top_left.x, 0), width)
+        x2 = min(max(self.bottom_right.x, 0), width)
+        return image[y1:y2, x1:x2]
 
     def area(self) -> float:
         return (self.bottom_right.x - self.top_left.x) * (self.bottom_right.y - self.top_left.y)

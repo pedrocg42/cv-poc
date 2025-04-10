@@ -4,18 +4,22 @@ import time
 import cv2
 
 from src.identity_manager import IdentityManager
+from src.processors.infrastructure.face_liveness_processor import FaceLivenessProcessor
 from src.processors.infrastructure.face_recognition_processor import FaceRecognitionProcessor
 from src.processors.infrastructure.face_yolo_world_processor import FaceYOLOWorldProcessor
 from src.processors.infrastructure.retinaface.retina_face_onnx_processor import RetinaFaceOnnxProcessor
 from src.types.selfie_data import SelfieData
 
 
-async def main():
+async def main(recognition: bool = True, liveness: bool = True, attributes: bool = True):
     face_detector_processor = RetinaFaceOnnxProcessor()
-    face_recognition_processor = FaceRecognitionProcessor()
-    face_attribute_processor = FaceYOLOWorldProcessor()
-
-    identity_manager = IdentityManager()
+    if recognition:
+        face_recognition_processor = FaceRecognitionProcessor()
+        identity_manager = IdentityManager()
+    if liveness:
+        face_liveness_processor = FaceLivenessProcessor()
+    if attributes:
+        face_attribute_processor = FaceYOLOWorldProcessor()
 
     # Open video
     cap = cv2.VideoCapture(1)
@@ -41,11 +45,17 @@ async def main():
 
             selfie_data = SelfieData(image=cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
 
-            # Run inference
             selfie_data = await face_detector_processor(selfie_data)
-            selfie_data = await face_recognition_processor(selfie_data)
-            selfie_data = identity_manager.identify(selfie_data)
-            selfie_data = await face_attribute_processor(selfie_data)
+
+            if recognition:
+                selfie_data = await face_recognition_processor(selfie_data)
+                selfie_data = identity_manager.identify(selfie_data)
+
+            if liveness:
+                selfie_data = await face_liveness_processor(selfie_data)
+
+            if attributes:
+                selfie_data = await face_attribute_processor(selfie_data)
 
             # Show
             draw_frame = selfie_data.draw()

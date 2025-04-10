@@ -39,6 +39,10 @@ class IdentityManager:
 
     def compute_similarity(self, embedding1: np.ndarray, embedding2: np.ndarray) -> float:
         """Compute cosine similarity between two embeddings."""
+        if len(embedding1) > 1:
+            embedding1 = np.mean(embedding1, axis=0, keepdims=True)
+        if len(embedding2) > 1:
+            embedding2 = np.mean(embedding2, axis=0, keepdims=True)
         embedding1 = embedding1 / np.linalg.norm(embedding1)
         embedding2 = embedding2 / np.linalg.norm(embedding2)
         similarity = np.dot(embedding1, embedding2.T)
@@ -51,11 +55,10 @@ class IdentityManager:
 
         for identity_id, identity in self.identities.items():
             # Compare with all embeddings of the identity
-            for stored_embedding in identity.embedding:
-                similarity = self.compute_similarity(embedding, stored_embedding)
-                if similarity > best_similarity:
-                    best_similarity = similarity
-                    best_id = identity_id
+            similarity = self.compute_similarity(embedding, identity.embedding)
+            if similarity > best_similarity:
+                best_similarity = similarity
+                best_id = identity_id
 
         return best_id, best_similarity
 

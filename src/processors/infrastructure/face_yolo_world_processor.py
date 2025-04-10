@@ -61,7 +61,7 @@ class FaceYOLOWorldProcessor(Processor):
         for box in result.boxes:
             x1, y1, x2, y2 = box.xyxy[0].numpy().astype(int).tolist()
             confidence = float(box.conf[0])
-            if confidence > 0.6:
+            if confidence > 0.3:
                 face_attributes.append(
                     FaceAttribute(
                         bb=BoundingBox(top_left=Point(x=x1, y=y1), bottom_right=Point(x=x2, y=y2)),

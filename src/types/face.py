@@ -82,6 +82,7 @@ class Face(Annotation):
     bb: BoundingBox | None = None
     landmarks: FaceLandmarks | None = None
     identity: Identity | None = None
+    liveness_score: float | None = None
     attributes: list[FaceAttribute] = Field(default_factory=list)
     reference_points: np.ndarray = np.array(
         [
@@ -125,6 +126,21 @@ class Face(Annotation):
                 (0, 255, 0),
                 1,
             )
+
+        if self.liveness_score < 0.1:
+            print(self.liveness_score)
+            # Add red tint to face region only
+            red_overlay = np.zeros((self.bb.height, self.bb.width, 3), dtype=np.uint8)
+            red_overlay[:, :, 0] = 200  # Red channel
+
+            # Put tinted face back into image
+            x1, y1 = int(self.bb.top_left.x), int(self.bb.top_left.y)
+            x2, y2 = int(self.bb.bottom_right.x), int(self.bb.bottom_right.y)
+            image[y1:y2, x1:x2] = cv2.addWeighted(image[y1:y2, x1:x2], 0.7, red_overlay, 0.3, 0)
+
+            # Add "Attack!" text below bounding box
+            text_position = (x1, y2 + 20)  # Position below the box
+            cv2.putText(image, "Attack!", text_position, cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 1)
 
         return image
 

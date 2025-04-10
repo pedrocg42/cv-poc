@@ -75,8 +75,8 @@ async def main():
                     # Save embeddings as numpy array
                     embeddings.append(identity.embedding)
 
-            embeddings = np.asarray(embeddings, dtype=np.float32)
-            np.save(identity_id / "face_recognition_embeddings.npy", embeddings)
+            embeddings = np.vstack(embeddings, dtype=np.float32)
+            np.save(identity_id / "embeddings.npy", embeddings)
 
 
 if __name__ == "__main__":
