@@ -130,17 +130,16 @@ class Face(Annotation):
         if self.liveness_score < 0.1:
             print(self.liveness_score)
             # Add red tint to face region only
-            red_overlay = np.zeros((self.bb.height, self.bb.width, 3), dtype=np.uint8)
-            red_overlay[:, :, 0] = 200  # Red channel
+            # face_crop = self.bb.crop_image(image)
+            # red_overlay = np.zeros_like(face_crop)
+            # red_overlay[:, :, 0] = 20  # Red channel
 
             # Put tinted face back into image
-            x1, y1 = int(self.bb.top_left.x), int(self.bb.top_left.y)
-            x2, y2 = int(self.bb.bottom_right.x), int(self.bb.bottom_right.y)
-            image[y1:y2, x1:x2] = cv2.addWeighted(image[y1:y2, x1:x2], 0.7, red_overlay, 0.3, 0)
+            # face_crop += red_overlay
 
             # Add "Attack!" text below bounding box
-            text_position = (x1, y2 + 20)  # Position below the box
-            cv2.putText(image, "Attack!", text_position, cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 1)
+            text_position = (self.bb.top_left.x, self.bb.bottom_right.y + 25)  # Position below the box
+            cv2.putText(image, "Attack!", text_position, cv2.FONT_HERSHEY_SIMPLEX, 1.0, (255, 0, 0), 2)
 
         return image
 
